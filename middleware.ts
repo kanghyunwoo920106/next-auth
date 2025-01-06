@@ -8,7 +8,7 @@ export default async function middleware(req) {
   });
 
   if (!token) {
-    return NextResponse.redirect(new URL("/auth", req.url));
+    return NextResponse.redirect(new URL("/login", req.url));
   }
 
   return NextResponse.next();

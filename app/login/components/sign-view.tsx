@@ -70,6 +70,11 @@ export default function SignView() {
       router.push("/main");
     }
   };
+
+  const handleSign = () => {
+    router.push("/signup");
+  };
+
   return (
     <div className="flex items-center justify-center h-screen">
       <div className="max-w-sm mx-auto p-4">
@@ -99,8 +104,18 @@ export default function SignView() {
               )}
             </div>
           </div>
-          <Button className="w-full mt-4 bg-slate-200" type="submit">
+          <Button
+            className="w-full mt-4 bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
+            type="submit"
+          >
             로그인
+          </Button>
+          <Button
+            className="w-full mt-2 bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
+            type="button"
+            onClick={handleSign}
+          >
+            회원가입
           </Button>
         </form>
       </div>

@@ -3,15 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "dotenv -e .env -- next dev --turbopack",
+    "test": "NODE_OPTIONS='--inspect' next dev --port 3000",
     "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "start": "dotenv -e .env -- next start",
+    "build-deploy": "git pull && . $HOME/.nvm/nvm.sh && nvm use 20.9.0 && pnpm install && pnpm build && pm2 restart ecosystem.config.js",
+    "lint": "biome check",
+    "format": "biome format"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^16.4.7",
     "next": "15.1.3",
     "next-auth": "^4.24.11",
     "react": "^19.0.0",
@@ -20,14 +24,26 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@eslint/eslintrc": "^3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.1.3",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
+  },
+  "pnpm": {
+    "overrides": {
+      "@types/react": "npm:types-react@19.0.0-rc.1",
+      "@types/react-dom": "npm:types-react-dom@19.0.0-rc.1",
+      "react-is": "^19.0.0-rc-603e6108-20241029"
+    }
+  },
+  "overrides": {
+    "react-is": "^19.0.0-rc-603e6108-20241029"
   }
 }

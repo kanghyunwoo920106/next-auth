@@ -1,5 +1,5 @@
-import SignView from "./components/sign-view";
+import { redirect } from "next/navigation";
 
 export default function AuthPage() {
-    return <SignView />
+  redirect("/login/login-view");
 }

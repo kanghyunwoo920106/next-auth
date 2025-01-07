@@ -51,7 +51,7 @@ export const authOptions: AuthOptions = {
         }
 
         // 이메일 검증
-        if (credentials.email !== "hyunwoo@example.com") {
+        if (credentials.email !== "hyunwoo@test.com") {
           throw new Error("이메일이 일치하지 않습니다.");
         }
 
@@ -71,7 +71,7 @@ export const authOptions: AuthOptions = {
   ],
   session: {
     strategy: "jwt", // JWT 방식으로 세션 관리
-    maxAge: 7 * 24 * 60 * 60, // 7일
+    maxAge: 30 * 60, // 30분
   },
   callbacks: {
     async jwt({ token, user }) {

@@ -59,8 +59,9 @@ export const authOptions: AuthOptions = {
         return {
           id: "1",
           email: credentials.email,
-          name: "Test User",
-          role: "admin",
+          name: "강현우",
+          role: "사용자",
+          image: "https://github.com/shadcn.png",
         };
       },
     }),

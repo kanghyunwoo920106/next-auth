@@ -120,13 +120,6 @@ export default function LoginView() {
             >
               로그인
             </Button>
-            <Button
-              className="w-full mt-2 bg-slate-200 hover:bg-slate-300 active:bg-slate-400"
-              type="button"
-              onClick={handleSign}
-            >
-              회원가입
-            </Button>
           </form>
         </div>
       </div>

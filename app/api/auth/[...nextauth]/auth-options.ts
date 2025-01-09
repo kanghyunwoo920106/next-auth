@@ -5,9 +5,10 @@ import * as z from "zod";
 
 // 로그인 시 사용할 유효성 검사 스키마 정의
 const loginSchema = z.object({
-  email: z.string().email({ message: "올바른 이메일 형식이 아닙니다." }),
+  email: z.string().trim().email({ message: "올바른 이메일 형식이 아닙니다." }),
   password: z
     .string()
+    .trim()
     .min(8, { message: "비밀번호는 최소 8자 이상이어야 합니다." }),
 });
 

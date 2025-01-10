@@ -8,11 +8,16 @@ const loginSchema = z.object({
   password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다."),
 });
 
+interface ValidType {
+  email: string;
+  password: string;
+}
+
 // 인증 처리 함수
-const validateCredentials = (credentials: { email?: string; password?: string }) => {
+const validateCredentials = (credentials: ValidType | undefined) => {
   try {
     // Zod를 사용한 유효성 검사
-    const validatedCredentials = loginSchema.parse(credentials);
+    const validatedCredentials: ValidType = loginSchema.parse(credentials);
 
     // 이메일과 비밀번호 검증
     if (validatedCredentials.email !== "hyunwoo@test.com") {
@@ -30,7 +35,10 @@ const validateCredentials = (credentials: { email?: string; password?: string })
       image: "https://github.com/shadcn.png",
     };
   } catch (error) {
-    throw new Error(error.message || "유효성 검사 실패");
+    if (error instanceof Error) {
+      throw new Error(error.message || "유효성 검사 실패");
+    }
+    throw new Error("유효성 검사 실패");
   }
 };
 
@@ -39,15 +47,53 @@ export const authOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
+        email: { label: "Email", type: "email", placeholder: "이메일을 입력해주세요." },
+        password: { label: "Password", type: "password", placeholder: "비밀번호를 입력해주세요." },
       },
-      async authorize(credentials) {
+      async authorize(credentials: ValidType | undefined) {
         try {
-          const user = validateCredentials(credentials);
-          return user;
+          // const user = validateCredentials(credentials as ValidType);
+          // return user;
+
+          // 백엔드 연동 시 사용할 코드
+          // 1. 클라이언트 유효성 검사
+          const validatedCredentials = loginSchema.parse(credentials);
+
+          // 2. 백엔드 API로 로그인 요청
+          const res = await fetch("https://your-backend.com/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(validatedCredentials),
+          });
+
+          if (!res.ok) {
+            const errorResponse = await res.json();
+            throw new Error(errorResponse.message || "백엔드 인증 실패");
+          }
+
+          // 3. 백엔드 응답 확인
+          const user = await res.json();
+
+          // 백엔드 유효성 검사 추가
+          if (!user || !user.accessToken || !user.refreshToken) {
+            throw new Error("백엔드 응답이 올바르지 않습니다.");
+          }
+
+          // 4. 사용자 정보 반환
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            image: user.image,
+            accessToken: user.accessToken,
+            refreshToken: user.refreshToken,
+          };
         } catch (error) {
-          throw new Error(error.message);
+          if (error instanceof Error) {
+            throw new Error(error.message);
+          }
+          throw new Error("인증 실패");
         }
       },
     }),
@@ -66,6 +112,13 @@ export const authOptions = {
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as string;
+        session.user.email = token.email as string;
+        session.user.name = token.name as string;
+        session.user.image = token.image as string;
+
+        // 백엔드 연동 시 사용할 코드
+        // session.user.accessToken = token.accessToken as string;
+        // session.user.refreshToken = token.refreshToken as string;
       }
       return session;
     },

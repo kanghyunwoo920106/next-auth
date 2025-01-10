@@ -52,43 +52,43 @@ export const authOptions = {
       },
       async authorize(credentials: ValidType | undefined) {
         try {
-          // const user = validateCredentials(credentials as ValidType);
-          // return user;
+          const user = validateCredentials(credentials as ValidType);
+          return user;
 
           // 백엔드 연동 시 사용할 코드
           // 1. 클라이언트 유효성 검사
-          const validatedCredentials = loginSchema.parse(credentials);
+          // const validatedCredentials = loginSchema.parse(credentials);
 
-          // 2. 백엔드 API로 로그인 요청
-          const res = await fetch("https://your-backend.com/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(validatedCredentials),
-          });
+          // // 2. 백엔드 API로 로그인 요청
+          // const res = await fetch("https://your-backend.com/api/auth/login", {
+          //   method: "POST",
+          //   headers: { "Content-Type": "application/json" },
+          //   body: JSON.stringify(validatedCredentials),
+          // });
 
-          if (!res.ok) {
-            const errorResponse = await res.json();
-            throw new Error(errorResponse.message || "백엔드 인증 실패");
-          }
+          // if (!res.ok) {
+          //   const errorResponse = await res.json();
+          //   throw new Error(errorResponse.message || "백엔드 인증 실패");
+          // }
 
-          // 3. 백엔드 응답 확인
-          const user = await res.json();
+          // // 3. 백엔드 응답 확인
+          // const user = await res.json();
 
-          // 백엔드 유효성 검사 추가
-          if (!user || !user.accessToken || !user.refreshToken) {
-            throw new Error("백엔드 응답이 올바르지 않습니다.");
-          }
+          // // 백엔드 유효성 검사 추가
+          // if (!user || !user.accessToken || !user.refreshToken) {
+          //   throw new Error("백엔드 응답이 올바르지 않습니다.");
+          // }
 
-          // 4. 사용자 정보 반환
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-            role: user.role,
-            image: user.image,
-            accessToken: user.accessToken,
-            refreshToken: user.refreshToken,
-          };
+          // // 4. 사용자 정보 반환
+          // return {
+          //   id: user.id,
+          //   email: user.email,
+          //   name: user.name,
+          //   role: user.role,
+          //   image: user.image,
+          //   accessToken: user.accessToken,
+          //   refreshToken: user.refreshToken,
+          // };
         } catch (error) {
           if (error instanceof Error) {
             throw new Error(error.message);
@@ -114,7 +114,7 @@ export const authOptions = {
         session.user.role = token.role as string;
         session.user.email = token.email as string;
         session.user.name = token.name as string;
-        session.user.image = token.image as string;
+        // session.user.image = token.image as string;
 
         // 백엔드 연동 시 사용할 코드
         // session.user.accessToken = token.accessToken as string;

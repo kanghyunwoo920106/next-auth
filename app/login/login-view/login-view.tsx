@@ -7,42 +7,38 @@ import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { z } from "zod"; // Zod 임포트
 
-type ErrorType = {
+interface ErrorType {
   email: string | null;
   password: string | null;
 };
 
+// 로그인 오류 메시지
+const LOGIN_ERROR_MESSAGE = {
+  email: "올바른 이메일 주소를 입력해주세요.",
+  password: "비밀번호는 최소 8자 이상이어야 합니다.",
+};
+
 // 로그인 시 사용할 Zod 유효성 검사 스키마
 const loginSchema = z.object({
-  email: z.string().email("올바른 이메일 주소를 입력해주세요."),
-  password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다."),
+  email: z.string().email(LOGIN_ERROR_MESSAGE.email),
+  password: z.string().min(8, LOGIN_ERROR_MESSAGE.password),
 });
 
 export default function LoginView() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [errors, setErrors] = useState<ErrorType | null>({
     email: null,
     password: null,
   });
   const router = useRouter();
-  const { data, status } = useSession();
 
   useEffect(() => {
-    if (email) {
-      setErrors((prev) => ({
-        ...prev,
-        email: null,
-        password: prev?.password ?? null,
-      }));
-    }
-    if (password) {
-      setErrors((prev) => ({
-        ...prev,
-        password: null,
-        email: prev?.email ?? null,
-      }));
-    }
+    setErrors((prev) => ({
+      ...prev,
+      email: email ? null : prev?.email ?? null,
+      password: password ? null : prev?.password ?? null,
+    }));
   }, [email, password]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -53,7 +49,7 @@ export default function LoginView() {
     });
 
     try {
-      // Zod 유효성 검사
+      // 로그인 유효성 검사
       loginSchema.parse({ email, password });
 
       const result = await signIn("credentials", {
@@ -63,21 +59,11 @@ export default function LoginView() {
       });
 
       if (result?.error) {
-        if (result.error.includes("이메일")) {
-          setErrors((prev) => ({
-            ...prev,
-            email: result.error,
-            password: prev?.password ?? null,
-          }));
-        } else if (result.error.includes("비밀번호")) {
-          setErrors((prev) => ({
-            ...prev,
-            password: result.error,
-            email: prev?.email ?? null,
-          }));
-        } else {
-          console.error(result.error);
-        }
+        setErrors({
+          email: result.error.includes("이메일") ? result.error : null,
+          password: result.error.includes("비밀번호") ? result.error : null
+        });
+        !result.error.includes("이메일") && !result.error.includes("비밀번호") && console.error(result.error);
       } else {
         router.push("/main");
       }
@@ -97,10 +83,6 @@ export default function LoginView() {
         setErrors(newErrors);
       }
     }
-  };
-
-  const handleSign = () => {
-    router.push("/signup");
   };
 
   return (

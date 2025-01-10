@@ -5,11 +5,18 @@ import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { z } from "zod"; // Zod 임포트
 
 type ErrorType = {
   email: string | null;
   password: string | null;
 };
+
+// 로그인 시 사용할 Zod 유효성 검사 스키마
+const loginSchema = z.object({
+  email: z.string().email("올바른 이메일 주소를 입력해주세요."),
+  password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다."),
+});
 
 export default function LoginView() {
   const [email, setEmail] = useState("");
@@ -45,30 +52,50 @@ export default function LoginView() {
       password: null,
     });
 
-    const result = await signIn("credentials", {
-      redirect: false,
-      email,
-      password,
-    });
+    try {
+      // Zod 유효성 검사
+      loginSchema.parse({ email, password });
 
-    if (result?.error) {
-      if (result.error.includes("이메일")) {
-        setErrors((prev) => ({
-          ...prev,
-          email: result.error,
-          password: prev?.password ?? null,
-        }));
-      } else if (result.error.includes("비밀번호")) {
-        setErrors((prev) => ({
-          ...prev,
-          password: result.error,
-          email: prev?.email ?? null,
-        }));
+      const result = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (result?.error) {
+        if (result.error.includes("이메일")) {
+          setErrors((prev) => ({
+            ...prev,
+            email: result.error,
+            password: prev?.password ?? null,
+          }));
+        } else if (result.error.includes("비밀번호")) {
+          setErrors((prev) => ({
+            ...prev,
+            password: result.error,
+            email: prev?.email ?? null,
+          }));
+        } else {
+          console.error(result.error);
+        }
       } else {
-        console.error(result.error);
+        router.push("/main");
       }
-    } else {
-      router.push("/main");
+    } catch (error: any) {
+      // Zod 유효성 검사 오류 처리
+      if (error instanceof z.ZodError) {
+        const newErrors: ErrorType = { email: null, password: null };
+      
+        error.errors.forEach((err) => {
+          if (err.path[0] === "email") {
+            newErrors.email = err.message;
+          } else if (err.path[0] === "password") {
+            newErrors.password = err.message;
+          }
+        });
+      
+        setErrors(newErrors);
+      }
     }
   };
 

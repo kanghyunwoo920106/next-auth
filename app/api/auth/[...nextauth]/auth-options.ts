@@ -1,22 +1,37 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { z } from "zod";
 
 // 로그인 시 사용할 유효성 검사
+const loginSchema = z.object({
+  email: z.string().email("올바른 이메일 주소를 입력해주세요."),
+  password: z.string().min(8, "비밀번호는 최소 8자 이상이어야 합니다."),
+});
+
+// 인증 처리 함수
 const validateCredentials = (credentials: { email?: string; password?: string }) => {
-  if (!credentials?.email) throw new Error("이메일을 입력해주세요.");
-  if (!credentials?.password) throw new Error("비밀번호를 입력해주세요.");
-  
-  // 이메일과 비밀번호 검증
-  if (credentials.email !== "hyunwoo@test.com") throw new Error("이메일이 일치하지 않습니다.");
-  if (credentials.password !== "12345678!") throw new Error("비밀번호가 일치하지 않습니다.");
-  
-  return {
-    id: "1",
-    email: credentials.email,
-    name: "강현우",
-    role: "사용자",
-    image: "https://github.com/shadcn.png",
-  };
+  try {
+    // Zod를 사용한 유효성 검사
+    const validatedCredentials = loginSchema.parse(credentials);
+
+    // 이메일과 비밀번호 검증
+    if (validatedCredentials.email !== "hyunwoo@test.com") {
+      throw new Error("이메일이 일치하지 않습니다.");
+    }
+    if (validatedCredentials.password !== "12345678!") {
+      throw new Error("비밀번호가 일치하지 않습니다.");
+    }
+
+    return {
+      id: "1",
+      email: validatedCredentials.email,
+      name: "강현우",
+      role: "사용자",
+      image: "https://github.com/shadcn.png",
+    };
+  } catch (error) {
+    throw new Error(error.message || "유효성 검사 실패");
+  }
 };
 
 export const authOptions = {

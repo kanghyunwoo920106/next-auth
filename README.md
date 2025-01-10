@@ -4,13 +4,13 @@ NextAuth의 Credentials Provider를 사용하여 이메일과 비밀번호 기�
 
 ## 서버 구동 방법
 1. 프로젝트 클론
-git clone https://github.com/kanghyunwoo920106/next-auth.git
+- git clone https://github.com/kanghyunwoo920106/next-auth.git
 2. 프로젝트 폴더로 이동
-cd next-auth
+- cd next-auth
 3. 패키지 설치
-pnpm install
+- pnpm install
 4. 서버 구동
-pnpm dev
+- pnpm dev
 
 ## 주요 기능
 - NextAuth를 활용한 사용자 인증
